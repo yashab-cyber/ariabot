@@ -87,6 +87,10 @@ class ModerationCog(commands.Cog, name="Moderation"):
     @app_commands.command(name="timeout", description="Timeout (mute) a user for a duration.")
     @app_commands.checks.has_permissions(moderate_members=True)
     async def timeout(self, interaction: discord.Interaction, user: discord.Member, minutes: int, reason: str = "No reason provided."):
+        if minutes <= 0 or minutes > 40320:
+            await interaction.response.send_message("❌ Timeout duration must be between 1 minute and 40,320 minutes (28 days).", ephemeral=True)
+            return
+
         duration = timedelta(minutes=minutes)
         await user.timeout(duration, reason=reason)
 

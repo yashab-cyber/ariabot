@@ -38,15 +38,17 @@ class AICog(commands.Cog, name="AI Assistant"):
         async for chunk in ai_service.generate_response(full_prompt, context_key=ctx_key):
             response_text += chunk
 
-        # Split into 2000 character chunks if long
-        embed = discord.Embed(
-            title=f"🤖 Aria AI — {topic}",
-            description=response_text[:4000],
-            color=0x5865F2
-        )
-        embed.set_footer(text=f"Requested by {interaction.user.display_name} • OpenDroid AI")
+        # Split into 4000 character chunks if long to prevent truncation
+        chunks = [response_text[i:i+4000] for i in range(0, len(response_text), 4000)]
+        for idx, chunk in enumerate(chunks):
+            embed = discord.Embed(
+                title=f"🤖 Aria AI — {topic}" if idx == 0 else f"🤖 Aria AI — {topic} (Cont. {idx+1})",
+                description=chunk,
+                color=0x5865F2
+            )
+            embed.set_footer(text=f"Requested by {interaction.user.display_name} • OpenDroid AI")
+            await interaction.followup.send(embed=embed, ephemeral=ephemeral)
 
-        await interaction.followup.send(embed=embed, ephemeral=ephemeral)
 
     @app_commands.command(name="ask", description="Ask Aria AI any question.")
     async def ask(self, interaction: discord.Interaction, question: str):

@@ -138,6 +138,44 @@ class EconomyCog(commands.Cog, name="Economy"):
         embed.add_field(name="Items", value="\n".join([str(i) for i in items]), inline=False)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="buy", description="Purchase an item from the community shop.")
+    async def buy(self, interaction: discord.Interaction, item_id: int):
+        shop_items = {
+            1: {"name": "VIP Role Badge", "price": 1000, "type": "badge"},
+            2: {"name": "2x XP Booster", "price": 2500, "type": "item"}
+        }
+
+        item = shop_items.get(item_id)
+        if not item:
+            await interaction.response.send_message("❌ Invalid item ID. Use `/shop` to view available items.", ephemeral=True)
+            return
+
+        async with AsyncSessionLocal() as session:
+            repo = EconomyRepository(session)
+            user = await repo.get_or_create(interaction.guild_id, interaction.user.id)
+
+            if user.wallet < item["price"]:
+                await interaction.response.send_message(f"❌ Insufficient wallet balance. You need **{item['price']:,}** coins.", ephemeral=True)
+                return
+
+            user.wallet -= item["price"]
+            if item["type"] == "badge":
+                current_badges = list(user.badges or [])
+                if item["name"] in current_badges:
+                    await interaction.response.send_message(f"⚠️ You already own the **{item['name']}** badge!", ephemeral=True)
+                    return
+                current_badges.append(item["name"])
+                user.badges = current_badges
+            else:
+                current_inventory = list(user.inventory or [])
+                current_inventory.append(item["name"])
+                user.inventory = current_inventory
+
+            await session.commit()
+
+        await interaction.response.send_message(f"🎉 Successfully purchased **{item['name']}** for **{item['price']:,}** coins!")
+
+
 
 
 async def setup(bot):
