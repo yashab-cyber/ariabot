@@ -111,6 +111,7 @@ pytest
 
 ## 📄 Documentation Links
 
+- 📄 [Usage Guide, PRD & TRD Document](docs/USAGE.md)
 - 📖 [Complete Slash Command Index](docs/COMMANDS.md)
 - 🏗️ [Technical Architecture Guide](docs/ARCHITECTURE.md)
 - 🚀 [Deployment Guide](docs/DEPLOYMENT.md)
