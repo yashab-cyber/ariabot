@@ -1,90 +1,168 @@
-# 📖 Aria Command Reference
+# 📖 Aria Complete Slash Command Reference
 
-Complete list of slash commands available in **Aria**.
-
----
-
-## 🤖 AI Assistant (`cogs/ai`)
-- `/ask <question>` — Ask Aria any question.
-- `/chat <message>` — Interactive conversation.
-- `/explain <concept>` — Explain technical concepts simply.
-- `/debug <code_or_error>` — Debug code or stack trace errors.
-- `/fix <code>` — Automatically fix errors in code.
-- `/review <code>` — Comprehensive code review.
-- `/code <requirement>` — Generate clean production code.
-- `/translate <target_language> <text>` — Translate text into any language.
-- `/summarize <text>` — Provide bulleted summaries.
-- `/rewrite <text> [tone]` — Rewrite text with custom tone.
-- `/grammar <text>` — Check grammar & spelling.
-- `/brainstorm <topic>` — Generate innovative ideas.
-- `/ai_reset` — Clear active conversation memory.
+This document provides a comprehensive, production-grade specification for every slash command available in **Aria**.
 
 ---
 
-## 🛡️ Moderation (`cogs/moderation`)
-- `/warn <user> <reason>` — Issue a formal warning.
-- `/warnings <user>` — View warning history.
-- `/timeout <user> <minutes> [reason]` — Apply temp timeout.
-- `/unmute <user> [reason]` — Remove timeout.
-- `/kick <user> [reason]` — Kick member.
-- `/ban <user> [reason]` — Ban member.
-- `/softban <user> [reason]` — Ban and unban to purge messages.
-- `/unban <user_id> [reason]` — Unban user by ID.
-- `/cases <user>` — View moderation cases history.
+## 🤖 AI Assistant Module (`bot/cogs/ai/ai_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/ask` | `question: str` | Everyone | Ask Aria AI any question with automatic topic classification. |
+| `/chat` | `message: str` | Everyone | Have a multi-turn interactive conversation with Aria. |
+| `/explain` | `concept: str` | Everyone | Explain a complex technical concept or code snippet simply. |
+| `/debug` | `code_or_error: str` | Everyone | Analyze stack traces or code to identify bugs and solutions. |
+| `/fix` | `code: str` | Everyone | Automatically fix syntax and logical errors in code snippets. |
+| `/review` | `code: str` | Everyone | Perform a comprehensive code review (security, performance). |
+| `/code` | `requirement: str` | Everyone | Generate clean, production-ready code with type annotations. |
+| `/translate` | `target_language: str, text: str` | Everyone | Translate text into any specified language. |
+| `/summarize` | `text: str` | Everyone | Generate concise bulleted summaries of long text or articles. |
+| `/rewrite` | `text: str, tone: str (optional)` | Everyone | Rewrite text for a specific tone (professional, casual, etc.). |
+| `/grammar` | `text: str` | Everyone | Correct grammar, spelling, and punctuation errors. |
+| `/brainstorm` | `topic: str` | Everyone | Generate innovative ideas for a project or topic. |
+| `/ai_reset` | *None* | Everyone | Clear your active conversation memory for the channel. |
 
 ---
 
-## 👋 Welcome & Verification (`cogs/welcome`, `cogs/verification`)
-- `/setup_welcome <channel> [message]` — Configure welcome embed.
-- `/setup_verification <role> [type]` — Deploy captcha/button verification panel.
+## 🛡️ Moderation & AutoMod (`bot/cogs/moderation/moderation_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/warn` | `user: Member, reason: str` | `Manage Messages` | Issue a formal warning to a user and log Case. |
+| `/warnings` | `user: Member` | `Manage Messages` | View all historical warnings for a specific user. |
+| `/timeout` | `user: Member, minutes: int, reason: str` | `Moderate Members` | Apply temporary mute/timeout to a user. |
+| `/unmute` | `user: Member, reason: str` | `Moderate Members` | Remove active timeout from a user. |
+| `/kick` | `user: Member, reason: str` | `Kick Members` | Kick a member from the server. |
+| `/ban` | `user: Member, reason: str` | `Ban Members` | Ban a member permanently from the server. |
+| `/softban` | `user: Member, reason: str` | `Ban Members` | Ban and immediately unban to purge recent messages. |
+| `/unban` | `user_id: str, reason: str` | `Ban Members` | Remove ban for a user by User ID. |
+| `/cases` | `user: Member` | `Manage Messages` | View all moderation cases (warns, mutes, bans) for a user. |
 
 ---
 
-## 📩 Ticket System (`cogs/tickets`)
-- `/setup_tickets <category>` — Deploy ticket launch panel.
+## 👋 Welcome & Onboarding (`bot/cogs/welcome/welcome_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/setup_welcome` | `channel: TextChannel, message: str` | `Administrator` | Configure server welcome channel and message template. |
 
 ---
 
-## 📊 Polls & Suggestions (`cogs/polls`, `cogs/suggestions`)
-- `/poll <question> <option_1> <option_2> ...` — Create interactive poll.
-- `/setup_suggestions <channel>` — Set community suggestions channel.
-- `/suggest <idea>` — Submit a community suggestion.
+## 🛡️ Security Verification (`bot/cogs/verification/verification_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/setup_verification` | `role: Role, verification_type: str` | `Administrator` | Deploy Pillow image Captcha or Button verification panel. |
 
 ---
 
-## 📈 Leveling & Economy (`cogs/leveling`, `cogs/economy`)
-- `/rank [user]` — Display rank card and XP progress.
-- `/leaderboard` — View server XP leaderboard.
-- `/balance [user]` — Check wallet & bank balance.
-- `/daily` — Claim daily coin reward.
-- `/coinflip <heads|tails> <bet>` — Bet coins on a coin flip.
+## 📩 Ticket Support System (`bot/cogs/tickets/tickets_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/setup_tickets` | `category: CategoryChannel` | `Administrator` | Deploy support ticket launch panel under specified category. |
 
 ---
 
-## ⏰ Reminders & Community (`cogs/reminders`, `cogs/community`)
-- `/remind <minutes> <message>` — Set a scheduled reminder.
-- `/reminders` — List active scheduled reminders.
-- `/faq [topic]` — Search community knowledge base.
-- `/announce <channel> <title> <message>` — Post official announcement.
+## 🎭 Reaction Roles (`bot/cogs/roles/reaction_roles_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/setup_reaction_roles` | `title: str, role_1: Role, role_2..5: Role` | `Administrator` | Deploy an interactive role assignment dropdown panel. |
 
 ---
 
-## 🛠️ Utility & Fun (`cogs/utility`, `cogs/fun`)
-- `/help` — Interactive paginated help directory.
-- `/ping` — View WebSocket latency.
-- `/botinfo` — System specs, uptime, and stats.
-- `/userinfo [user]` — View member profile details.
-- `/serverinfo` — View guild details.
-- `/8ball <question>` — Magic 8-Ball response.
-- `/dice [sides]` — Roll a die.
-- `/joke` — Get a tech joke.
-- `/fact` — Get a random coding fact.
+## 📊 Poll System (`bot/cogs/polls/polls_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/poll` | `question: str, option_1..5: str, anonymous: bool` | Everyone | Create an interactive button-based poll with live results. |
 
 ---
 
-## 🔐 Owner Panel (`cogs/owner`)
-- `/reload <extension>` — Dynamic cog hot-reload.
-- `/maintenance <enabled>` — Toggle maintenance mode.
-- `/broadcast <message>` — System announcement broadcast.
-- `/clear_cache` — Flush Redis and in-memory cache.
-- `/health` — Server health metrics.
+## 💡 Suggestions System (`bot/cogs/suggestions/suggestions_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/setup_suggestions` | `channel: TextChannel` | `Administrator` | Set the target channel for community suggestions. |
+| `/suggest` | `idea: str` | Everyone | Submit a suggestion for community upvoting and staff review. |
+
+---
+
+## 📈 Leveling & XP (`bot/cogs/leveling/leveling_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/rank` | `user: Member (optional)` | Everyone | Display current level, XP, prestige, and progress bar. |
+| `/leaderboard` | *None* | Everyone | Display top 10 server XP leaderboard. |
+
+---
+
+## 💰 Economy System (`bot/cogs/economy/economy_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/balance` | `user: Member (optional)` | Everyone | Check wallet and bank balance. |
+| `/daily` | *None* | Everyone | Claim daily coin reward with streak multiplier. |
+| `/coinflip` | `choice: str (heads/tails), bet: int` | Everyone | Gamble coins on a coin flip game. |
+
+---
+
+## ⏰ Reminders & Scheduler (`bot/cogs/reminders/reminders_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/remind` | `minutes: int, message: str` | Everyone | Schedule a reminder delivered via DM. |
+| `/reminders` | *None* | Everyone | View your active scheduled reminders. |
+
+---
+
+## 📢 Community Management (`bot/cogs/community/community_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/faq` | `query: str (optional)` | Everyone | Search or list community knowledge base topics. |
+| `/announce` | `channel: TextChannel, title: str, message: str` | `Administrator` | Broadcast an official server announcement embed. |
+
+---
+
+## 🛠️ Utility Commands (`bot/cogs/utility/utility_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/ping` | *None* | Everyone | Check bot WebSocket latency in milliseconds. |
+| `/botinfo` | *None* | Everyone | View system stats, Python version, CPU, and RAM metrics. |
+| `/userinfo` | `member: Member (optional)` | Everyone | View account creation, join date, and roles for a member. |
+| `/serverinfo` | *None* | Everyone | Display guild owner, member count, and channel statistics. |
+| `/help` | *None* | Everyone | Open interactive paginated command directory. |
+
+---
+
+## 🎲 Fun & Entertainment (`bot/cogs/fun/fun_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/8ball` | `question: str` | Everyone | Ask the Magic 8-Ball a question. |
+| `/dice` | `sides: int (optional)` | Everyone | Roll a die (default 6 sides). |
+| `/joke` | *None* | Everyone | Get a random tech or programming joke. |
+| `/fact` | *None* | Everyone | Get a random coding or technology fact. |
+
+---
+
+## 📈 Analytics (`bot/cogs/analytics/analytics_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/analytics` | *None* | `Manage Guild` | View real-time server activity overview and system health. |
+
+---
+
+## 🔐 Owner Controls (`bot/cogs/owner/owner_cog.py`)
+
+| Command | Arguments | Permission | Description |
+|---|---|---|---|
+| `/reload` | `extension: str` | Bot Owner / Guild Owner | Hot-reload a cog/plugin without restarting process. |
+| `/maintenance` | `enabled: bool` | Bot Owner / Guild Owner | Toggle global bot maintenance mode. |
+| `/broadcast` | `message: str` | Bot Owner / Guild Owner | Broadcast a message to all connected server system channels. |
+| `/clear_cache` | *None* | Bot Owner / Guild Owner | Flush all in-memory and Redis cache entries. |
+| `/health` | *None* | Bot Owner / Guild Owner | Detailed system health metrics (CPU, RAM, Uptime). |

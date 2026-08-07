@@ -35,6 +35,7 @@ class AriaBot(commands.Bot):
             "bot.cogs.welcome.welcome_cog",
             "bot.cogs.verification.verification_cog",
             "bot.cogs.tickets.tickets_cog",
+            "bot.cogs.roles.reaction_roles_cog",
             "bot.cogs.polls.polls_cog",
             "bot.cogs.suggestions.suggestions_cog",
             "bot.cogs.leveling.leveling_cog",
