@@ -1,6 +1,10 @@
 # 🤖 Aria — Official AI Discord Bot & Community Platform
 
 <p align="center">
+  <img src="assets/logo.png" alt="Aria Logo" width="220" />
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python" alt="Python 3.12+">
   <img src="https://img.shields.io/badge/discord.py-2.x-5865F2?style=for-the-badge&logo=discord" alt="discord.py">
   <img src="https://img.shields.io/badge/FastAPI-Dashboard-009688?style=for-the-badge&logo=fastapi" alt="FastAPI">
@@ -81,6 +85,7 @@ ariabot/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                # Automated GitHub Actions CI workflow (Ruff, Pytest)
+├── assets/                       # Project logos, graphics, and static media
 ├── bot/
 │   ├── client.py                 # Main AriaBot class subclassing commands.Bot
 │   ├── main.py                   # CLI entry point to launch the bot
