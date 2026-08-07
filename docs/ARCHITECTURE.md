@@ -1,45 +1,111 @@
-# 🏗️ Aria Technical Architecture
+# 🏗️ Aria Technical Architecture Specification
 
-Aria is designed around **Clean Architecture**, **SOLID principles**, and an asynchronous service layer to ensure production stability, high throughput, and effortless extensibility.
+Aria is built according to **Clean Architecture**, **SOLID Principles**, and an asynchronous event-driven model to ensure high throughput, zero-downtime plugin hot-reloading, and long-term maintainability for servers with over 100,000 members.
 
 ---
 
-## 📐 Architecture Layers
+## 📐 System Component Diagram
 
 ```mermaid
 graph TD
-    Client[Discord Gateway / Discord API] --> BotCore[AriaBot Client]
-    BotCore --> Cogs[Modular Cog Plugins]
-    
-    Cogs --> Services[Service Layer]
-    Cogs --> Repositories[Repository Pattern]
-    
-    Services --> AIService[Multi-Provider AI Service]
-    Services --> CacheService[Redis / In-Memory Cache]
-    Services --> SchedulerService[Async Scheduler]
-    
-    Repositories --> Database[(Async SQLAlchemy SQLite / PostgreSQL)]
-    
-    FastAPI[FastAPI Dashboard] --> Repositories
-    FastAPI --> BotCore
+    subgraph Discord Infrastructure
+        DiscordGateway[Discord WebSocket Gateway]
+        DiscordREST[Discord REST API v10]
+    end
+
+    subgraph Aria Application Layer
+        BotCore[AriaBot Subclass commands.Bot]
+        CommandTree[discord.app_commands Tree]
+        Cogs[17 Independent Cog Extensions]
+    end
+
+    subgraph Service Layer
+        AIService[AIService Multi-Provider Engine]
+        CacheService[CacheService Redis + Memory]
+        CaptchaService[CaptchaService Pillow Generator]
+        TranscriptService[TranscriptService HTML Generator]
+        SchedulerService[SchedulerService Async Loop]
+    end
+
+    subgraph Persistence & Data Access
+        GuildRepo[GuildRepository]
+        ModRepo[ModerationRepository]
+        TicketRepo[TicketRepository]
+        LevelRepo[LevelingRepository]
+        EcoRepo[EconomyRepository]
+        RemRepo[ReminderRepository]
+        AsyncSession[SQLAlchemy 2.0 AsyncSession Factory]
+        Database[(SQLite / PostgreSQL)]
+    end
+
+    subgraph Control Panel Dashboard
+        FastAPI[FastAPI Web Server]
+        RESTEndpoints[REST API Routes]
+        StaticUI[Glassmorphic Web Frontend]
+    end
+
+    DiscordGateway <--> BotCore
+    BotCore --> CommandTree
+    BotCore --> Cogs
+
+    Cogs --> AIService
+    Cogs --> CacheService
+    Cogs --> CaptchaService
+    Cogs --> TranscriptService
+
+    Cogs --> GuildRepo
+    Cogs --> ModRepo
+    Cogs --> TicketRepo
+    Cogs --> LevelRepo
+    Cogs --> EcoRepo
+    Cogs --> RemRepo
+
+    GuildRepo & ModRepo & TicketRepo & LevelRepo & EcoRepo & RemRepo --> AsyncSession
+    AsyncSession --> Database
+
+    FastAPI --> RESTEndpoints
+    RESTEndpoints --> StaticUI
+    RESTEndpoints --> AsyncSession
+    RESTEndpoints --> BotCore
 ```
 
 ---
 
-## 🔑 Core Architecture Pillars
+## 🏛️ Layer Responsibilities
 
-1. **Modular Cog Architecture**:
-   - Every major system (AI, Moderation, Tickets, Leveling, Economy, Welcome, etc.) is implemented as an isolated, independently loadable/unloadable Discord Cog extension.
-   - Dynamic plugin management via `/reload` command without stopping the process.
+### 1. Application Layer (`bot/client.py`, `bot/main.py`)
+- **`AriaBot`**: Subclasses `discord.ext.commands.Bot`. Responsible for handling ready events, loading initial extensions, setting custom bot activities, and registering the global slash command error handler.
+- **Plugin Management**: Implements dynamic extension loading (`load_extension`, `unload_extension`, `reload_extension`) enabling hot-reloading without stopping the bot process.
 
-2. **Async Repository Pattern**:
-   - Database queries are abstracted behind type-safe repositories (`GuildRepository`, `ModerationRepository`, `TicketRepository`, `LevelingRepository`, `EconomyRepository`).
-   - Powered by SQLAlchemy 2.0 AsyncSession for zero-blocking database access.
+### 2. Cog Layer (`bot/cogs/`)
+- Contains 17 modular, self-contained feature cogs.
+- Each cog contains slash command definitions (`@app_commands.command`), listeners (`@commands.Cog.listener`), and permission decorators (`@app_commands.checks.has_permissions`).
 
-3. **Multi-Provider AI Architecture**:
-   - Unified interface supporting OpenAI, Anthropic Claude, Google Gemini, Groq, OpenRouter, and local instances (Ollama & LM Studio).
-   - Dynamic context memory tracking per user and channel.
+### 3. Service Layer (`bot/services/`)
+- **`AIService`**: Unified multi-provider abstraction supporting OpenAI, Anthropic, Gemini, Groq, OpenRouter, Ollama, and LM Studio. Manages streaming generators (`AsyncGenerator[str, None]`), context window truncation, domain auto-detection, and token tracking.
+- **`CacheService`**: Provides standard `get`, `set`, `delete` cache interface with automatic TTL. Connects to Redis if available, or seamlessly falls back to an in-memory dictionary.
+- **`CaptchaService`**: Uses Pillow (PIL) to dynamically generate distorted alphanumeric security captchas with noise lines and Gaussian blur.
+- **`TranscriptService`**: Compiles Discord channel history into formatted, self-contained HTML transcript files with styling and badges.
+- **`SchedulerService`**: Runs a background asyncio loop polling due reminders, cleaning expired temp mutes, and triggering scheduled community tasks.
 
-4. **Web Dashboard & REST API**:
-   - Built on FastAPI with async Uvicorn worker threads.
-   - Real-time statistics, settings manager, and live log stream.
+### 4. Repository Layer (`bot/database/repositories/`)
+- Implements the **Repository Pattern** to abstract database access.
+- Inherits from `BaseRepository[ModelType]` to provide generic async CRUD operations (`get`, `get_all`, `create`, `update`, `delete`).
+
+### 5. Persistence Layer (`bot/database/`)
+- **ORM Models**: Defined using SQLAlchemy 2.0 `DeclarativeBase` with mapped column types (`Mapped[int]`, `Mapped[str]`).
+- **Connection**: `connection.py` configures `create_async_engine` and `async_sessionmaker` (`AsyncSessionLocal`) supporting SQLite (`aiosqlite`) for dev and PostgreSQL (`asyncpg`) for production.
+
+---
+
+## 🔒 Security & Exception Handling Design
+
+1. **Permission Validation**:
+   - Commands strictly enforce permission requirements via Discord API checks (`@app_commands.checks.has_permissions`) and custom predicates (`is_owner()`).
+
+2. **Global Slash Command Error Handler**:
+   - `on_tree_error` intercepts app command exceptions and returns structured, ephemeral error embeds (`MissingPermissions`, `CommandOnCooldown`).
+
+3. **Data Sanitization**:
+   - User inputs rendered in HTML transcripts are HTML-escaped using `html.escape` to prevent Cross-Site Scripting (XSS).
+   - SQL queries are executed via SQLAlchemy parameter binding to prevent SQL injection.
