@@ -35,6 +35,19 @@ class TicketsCog(commands.Cog, name="Tickets"):
         await interaction.channel.send(embed=embed, view=TicketLaunchView())
         await interaction.response.send_message(f"✅ Ticket panel deployed under category: {category.name}", ephemeral=True)
 
+    @app_commands.command(name="ticket_add", description="Add a member to an active support ticket.")
+    async def ticket_add(self, interaction: discord.Interaction, user: discord.Member):
+        channel: discord.TextChannel = interaction.channel
+        await channel.set_permissions(user, read_messages=True, send_messages=True, attach_files=True)
+        await interaction.response.send_message(f"✅ Added {user.mention} to this ticket channel.")
+
+    @app_commands.command(name="ticket_remove", description="Remove a member from an active support ticket.")
+    async def ticket_remove(self, interaction: discord.Interaction, user: discord.Member):
+        channel: discord.TextChannel = interaction.channel
+        await channel.set_permissions(user, overwrite=None)
+        await interaction.response.send_message(f"❌ Removed {user.mention} from this ticket channel.")
+
+
 
 async def setup(bot):
     await bot.add_cog(TicketsCog(bot))

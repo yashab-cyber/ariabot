@@ -112,6 +112,31 @@ class AICog(commands.Cog, name="AI Assistant"):
         ai_service.clear_history(ctx_key)
         await interaction.response.send_message("🧠 Conversation memory cleared!", ephemeral=True)
 
+    @app_commands.command(name="ai_provider", description="Set your preferred AI provider.")
+    async def ai_provider(
+        self,
+        interaction: discord.Interaction,
+        provider: str
+    ):
+        prov_clean = provider.lower().strip()
+        valid = ["openai", "anthropic", "groq", "openrouter", "ollama", "lmstudio"]
+        if prov_clean not in valid:
+            await interaction.response.send_message(f"❌ Invalid provider. Choose from: `{', '.join(valid)}`", ephemeral=True)
+            return
+
+        ai_service.set_user_preference(interaction.user.id, provider=prov_clean)
+        await interaction.response.send_message(f"✅ Preferred AI provider set to **{prov_clean.title()}**.", ephemeral=True)
+
+    @app_commands.command(name="ai_model", description="Set your preferred AI model name.")
+    async def ai_model(
+        self,
+        interaction: discord.Interaction,
+        model_name: str
+    ):
+        ai_service.set_user_preference(interaction.user.id, model=model_name)
+        await interaction.response.send_message(f"✅ Preferred AI model set to **{model_name}**.", ephemeral=True)
+
+
 
 async def setup(bot):
     await bot.add_cog(AICog(bot))

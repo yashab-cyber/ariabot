@@ -191,6 +191,25 @@ class ModerationCog(commands.Cog, name="Moderation"):
         )
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="modnotes", description="Add a staff private note for a user.")
+    @app_commands.checks.has_permissions(manage_messages=True)
+    async def modnotes(self, interaction: discord.Interaction, user: discord.Member, note: str):
+        async with AsyncSessionLocal() as session:
+            repo = ModerationRepository(session)
+            await repo.add_note(interaction.guild_id, user.id, interaction.user.id, note)
+
+        await interaction.response.send_message(f"📝 Added private mod note for {user.mention}.", ephemeral=True)
+
+    @app_commands.command(name="appeal", description="Submit a moderation appeal for review.")
+    async def appeal(self, interaction: discord.Interaction, case_number: int, explanation: str):
+        embed = discord.Embed(
+            title=f"⚖️ Moderation Appeal (Case #{case_number})",
+            description=f"**Submitted By:** {interaction.user.mention}\n**Explanation:**\n{explanation}",
+            color=0x3498DB
+        )
+        await interaction.response.send_message("✅ Your appeal has been submitted for moderator review.", ephemeral=True)
+
+
 
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))

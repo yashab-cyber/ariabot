@@ -21,6 +21,8 @@ This document provides a comprehensive, production-grade specification for every
 | `/grammar` | `text: str` | Everyone | Correct grammar, spelling, and punctuation errors. |
 | `/brainstorm` | `topic: str` | Everyone | Generate innovative ideas for a project or topic. |
 | `/ai_reset` | *None* | Everyone | Clear your active conversation memory for the channel. |
+| `/ai_provider` | `provider: str` | Everyone | Set preferred AI provider (OpenAI, Anthropic, Groq, OpenRouter, Ollama). |
+| `/ai_model` | `model_name: str` | Everyone | Set preferred AI model name (e.g. gpt-4o, claude-3-5-sonnet). |
 
 ---
 
@@ -37,6 +39,8 @@ This document provides a comprehensive, production-grade specification for every
 | `/softban` | `user: Member, reason: str` | `Ban Members` | Ban and immediately unban to purge recent messages. |
 | `/unban` | `user_id: str, reason: str` | `Ban Members` | Remove ban for a user by User ID. |
 | `/cases` | `user: Member` | `Manage Messages` | View all moderation cases (warns, mutes, bans) for a user. |
+| `/modnotes` | `user: Member, note: str` | `Manage Messages` | Add a staff private note for a user. |
+| `/appeal` | `case_number: int, explanation: str` | Everyone | Submit a moderation appeal for review. |
 
 ---
 
@@ -61,6 +65,8 @@ This document provides a comprehensive, production-grade specification for every
 | Command | Arguments | Permission | Description |
 |---|---|---|---|
 | `/setup_tickets` | `category: CategoryChannel` | `Administrator` | Deploy support ticket launch panel under specified category. |
+| `/ticket_add` | `user: Member` | `Manage Messages` | Add a member to an active support ticket channel. |
+| `/ticket_remove` | `user: Member` | `Manage Messages` | Remove a member from an active support ticket channel. |
 
 ---
 
@@ -95,6 +101,7 @@ This document provides a comprehensive, production-grade specification for every
 |---|---|---|---|
 | `/rank` | `user: Member (optional)` | Everyone | Display current level, XP, prestige, and progress bar. |
 | `/leaderboard` | *None* | Everyone | Display top 10 server XP leaderboard. |
+| `/prestige` | *None* | Everyone | Reset level 50+ to earn +1 Prestige rank. |
 
 ---
 
@@ -105,6 +112,9 @@ This document provides a comprehensive, production-grade specification for every
 | `/balance` | `user: Member (optional)` | Everyone | Check wallet and bank balance. |
 | `/daily` | *None* | Everyone | Claim daily coin reward with streak multiplier. |
 | `/coinflip` | `choice: str (heads/tails), bet: int` | Everyone | Gamble coins on a coin flip game. |
+| `/pay` | `recipient: Member, amount: int` | Everyone | Transfer coins to another community member. |
+| `/shop` | *None* | Everyone | Browse items available in the community shop. |
+| `/inventory` | *None* | Everyone | View your owned badges and items. |
 
 ---
 

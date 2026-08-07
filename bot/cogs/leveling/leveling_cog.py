@@ -82,6 +82,29 @@ class LevelingCog(commands.Cog, name="Leveling"):
         )
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="prestige", description="Reset level 50+ to earn +1 Prestige rank!")
+    async def prestige(self, interaction: discord.Interaction):
+        async with AsyncSessionLocal() as session:
+            repo = LevelingRepository(session)
+            user_data = await repo.get_or_create_user(interaction.guild_id, interaction.user.id)
+
+            if user_data.level < 50:
+                await interaction.response.send_message("❌ You must reach **Level 50** before you can prestige.", ephemeral=True)
+                return
+
+            user_data.level = 0
+            user_data.xp = 0
+            user_data.prestige += 1
+            await session.commit()
+
+        embed = discord.Embed(
+            title="✨ Prestige Unlocked!",
+            description=f"Congratulations {interaction.user.mention}! Your level has reset and you earned **Prestige Rank #{user_data.prestige}**!",
+            color=0x9B59B6
+        )
+        await interaction.response.send_message(embed=embed)
+
+
 
 async def setup(bot):
     await bot.add_cog(LevelingCog(bot))

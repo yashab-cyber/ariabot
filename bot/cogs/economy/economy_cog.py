@@ -85,6 +85,60 @@ class EconomyCog(commands.Cog, name="Economy"):
         )
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="pay", description="Transfer coins to another member.")
+    async def pay(self, interaction: discord.Interaction, recipient: discord.Member, amount: int):
+        if amount <= 0:
+            await interaction.response.send_message("Transfer amount must be greater than 0.", ephemeral=True)
+            return
+
+        if recipient.id == interaction.user.id:
+            await interaction.response.send_message("You cannot transfer coins to yourself.", ephemeral=True)
+            return
+
+        async with AsyncSessionLocal() as session:
+            repo = EconomyRepository(session)
+            sender = await repo.get_or_create(interaction.guild_id, interaction.user.id)
+            receiver = await repo.get_or_create(interaction.guild_id, recipient.id)
+
+            if sender.wallet < amount:
+                await interaction.response.send_message("❌ Insufficient wallet balance for this transfer.", ephemeral=True)
+                return
+
+            sender.wallet -= amount
+            receiver.wallet += amount
+            await session.commit()
+
+        await interaction.response.send_message(f"💸 Successfully transferred **{amount:,}** coins to {recipient.mention}!")
+
+    @app_commands.command(name="shop", description="Browse items available in the community shop.")
+    async def shop(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="🛒 OpenDroid Community Shop",
+            description="Use `/buy <item_id>` to purchase items!",
+            color=0x3498DB
+        )
+        embed.add_field(name="1. 🌟 VIP Role Badge (1,000 Coins)", value="Unlocks custom badge on profile.", inline=False)
+        embed.add_field(name="2. ⚡ 2x XP Booster (2,500 Coins)", value="Doubles XP gain for 24 hours.", inline=False)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="inventory", description="View your owned badges and items.")
+    async def inventory(self, interaction: discord.Interaction):
+        async with AsyncSessionLocal() as session:
+            repo = EconomyRepository(session)
+            user = await repo.get_or_create(interaction.guild_id, interaction.user.id)
+
+        items = user.inventory or ["No items owned yet."]
+        badges = user.badges or ["No badges earned yet."]
+
+        embed = discord.Embed(
+            title=f"🎒 Inventory — {interaction.user.display_name}",
+            color=0x5865F2
+        )
+        embed.add_field(name="Badges", value="\n".join(badges), inline=False)
+        embed.add_field(name="Items", value="\n".join([str(i) for i in items]), inline=False)
+        await interaction.response.send_message(embed=embed)
+
+
 
 async def setup(bot):
     await bot.add_cog(EconomyCog(bot))
